@@ -4,6 +4,13 @@
 
 using namespace std;
 
+class BlackboardObject ... 
+/*
+	register - Add the object to the blackboard
+	resign - Remove the object from the blackboard 
+*/
+
+
 class Dependent {
 public:
 
@@ -12,11 +19,17 @@ public:
     virtual ~Dependent();
 
 ...
-protected
-
+protected:
+    /* Needed to be replaced by a standart container */
     UnboundedCollection<KnowledgeSource*> references;
 
 };
+/*
+	Add - Add a reference to the knowledge source
+	Remove - Remove a reference to the knowledge source
+	NumberOfDependents - Return the number of dependents
+	Notify - Broadcast an operation of each dependent
+*/
 
 
 class Assumption : public BlackboardObject
@@ -26,7 +39,7 @@ public:
 
     BlackboardObject* target;
     KnowledgeSource* creator;
-    String<char> reason;
+    String<char> reason; // Replace to std::string?
     char plainLetter;
     char cipherLetter;
 
