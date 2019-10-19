@@ -1,0 +1,252 @@
+#include <iostream>
+#include <algorithm>
+#include <string.h>
+
+using namespace std;
+
+class Dependent {
+public:
+
+    Dependent();
+    Dependent(const Dependent&);
+    virtual ~Dependent();
+
+...
+protected
+
+    UnboundedCollection<KnowledgeSource*> references;
+
+};
+
+
+class Assumption : public BlackboardObject
+{
+public:
+...
+
+    BlackboardObject* target;
+    KnowledgeSource* creator;
+    String<char> reason;
+    char plainLetter;
+    char cipherLetter;
+
+};
+
+class Affirmation ... /*
+    make - Сделать высказывание.
+    retract - Отменить высказывание.
+    chiphertext - Вернуть шифрованный эквивалент для заданной буквы исходного текста.
+    plaintext - Вернуть исходный текстовый эквивалент для заданной буквы шифра.
+
+    isPlainLetterAsserted - определена ли эта буква текста достоверно?
+    isCipherLetterAsserted - определена ли эта буква шифра достоверно?
+    plainLetterHasAssumptlon - есть ли предположение об этой букве текста?
+    cipherLetterHasAssumption - есть ли предположение об этой букве шифра?
+	
+	
+    mostRecent - возвращает последнее предположение или утверждение;
+    statementAt - возвращает n-ое высказывание (предположение или утверждение).
+	
+	Уточнив поведение класса, мы можем принять правильные решения о его реализации. В частности, нам потребуется ввести в класс следующий защищенный объект:
+	UnboundedOrderedCollection<Assumption*> statements; 
+
+	*/
+
+class Assertion : public Assumption ... /*Общим для классов Assumption и Assertion является следующий селектор:
+
+    isRetractable - Является ли соответствие потенциально неверным?
+
+Для всех высказанных предположений значение предиката isRetractable является истинным, а для утверждений - ложным. Сделанное утверждение уже нельзя ни изменить ни отвергнуть. */
+
+class Sentence : public BlackboardObject, virtual public Dependent {
+public:
+...
+protected:
+
+    List<Word*> words;
+
+};
+
+class Alphabet : public BlackboardObject  {
+public:
+/*Так же, как и в класс CipherLetter, в класс Alphabet необходимо включить защищенный объект affirmations и определить операции доступа к его состоянию. */
+    char plaintext(char) const;
+    char ciphertext(char) const;
+    int isBound(char) const;
+
+};
+
+
+/*Суперкласс Dependent определен виртуальным, поскольку мы ожидаем, что будут подклассы от sentence, которые захотят наследовать также и от Dependent. 
+При этом для всех таких подклассов члены класса Dependent будут общими.
+
+В дополнение к операциям register и resign (определенным в суперклассе BlackboardObject) и четырем операциям, унаследованным от класса Dependent,
+мы добавляем еще две специфические операции для предложения:
+
+    value - Текущее значение предложения.
+    isSolved - Истинно, если о всех словах в предложении сделаны утверждения.
+
+Первоначальное значение value совпадает с текстом криптограммы. Когда isSolved станет истиной, value вернет исходный расшифрованный текст. 
+*/
+
+
+class Word : public BlackboardObject, virtual public Dependent {
+public:
+...
+
+    Sentence& sentence() const;
+    Word* previous() const;
+    Word* next() const;
+
+protected:
+
+    List<CipherLetter*> letters;
+
+};
+
+class CipherLetter : public BlackboardObject, virtual public Dependent {
+public:
+...
+/*Так же, как и в класс CipherLetter, в класс Alphabet необходимо включить защищенный объект affirmations и определить операции доступа к его состоянию. */
+
+    char value() const;
+    int isSolved() const;
+
+...
+protected:
+
+    char letter;
+    Affirmation affirmations;
+
+};
+
+class Blackboard : public DynamicCollection<BlackboardObject*> .../* Поскольку доска есть разновидность коллекции (тест на наследование), мы предпочитаем образовать этот класс методом наследования, а не с помощью включения экземпляра класса DynamicCollectlon. Операции включения в коллекцию и исключения из нее наследуются от класса Collection, а следующие пять операций, специфичных для информационной доски, вводятся нами:
+
+    reset - Очистить доску.
+    assertProblem - Поместить на доске начальные условия задачи.
+    connect - Подключить к доске источник знании.
+    issolved - Истинно, если предложение расшифровано.
+    retriaveSolution - Значение расшифрованного текста.
+
+	Обратите внимание на то, что класс Blackboard одновременно и инстанцирует от шаблона DynamicCollection, и наследует от него.
+	Кроме того, становится понятным использование класса Dependent в качестве примеси. Не привязывая этот класс жестко к иерархии Blackboard,
+	мы повышаем шансы на его последующее повторное использование. 
+*/
+
+class SentenceKnowledgeSource : public KnowledgeSource ...
+class WordKnowledgeSource : public KnowledgeSource ...
+class LetterKnowledgeSource : public KnowledgeSource ... 
+
+class SentenceStructureKnowledgeSource : public SentenceKnowledgeSource ...
+class SolvedKnowledgeSource : public SentenceKnowledgeSource ... 
+
+class WordStructureKnowledgeSource : public WordKnowledgeSource ...
+class SmallWordKnowledgeSource : public WordKnowledgeSource ...
+class PatternMatchingKnowledgeSource : public WordKnowledgeSource ... 
+
+class PatternMatchingKnowledgeSource : public WordKnowledgeSource {
+public:
+...
+protected:
+
+    static BoundedCollection<Word*> words;
+    REPatternMatching patternMatcher;
+
+};
+
+class CommonPrefixKnowledgeSource : public StringKnowledgeSource ...
+class CommonSuffixKnowledgeSource : public StringKnowledgeSource ...
+class DoubleLetterKnowledgeSource : public StringKnowledgeSource ...
+class LegalStringKnowledgeSource : public StringKnowledgeSource ... 
+
+class DirectSubstitutionKnowledgeSource : public LetterKnowledgeSource ...
+class VowelKnowledgeSource : public LetterKnowledgeSource ...
+class ConsonantKnowledgeSource : public LetterKnowledgeSource ...
+class LetterFrequencyKnowledgeSource : public LetterKnowledgeSource ... 
+
+/*Общее в источниках знаний. Анализ показал, что только две операции определены для всех упомянутых специализированных классов:
+
+    Reset - Перезапуск источника знаний.
+    evaluate - Определение состояния информационной доски. ВСЕ КЛАССЫ НАД НИМ НАЧИНАЯ С SentenceKnowledgeSource*/
+	
+class InferenceEngine {
+public:
+
+    InferenceEngine(<DynamicSet<Rules*>);
+	/*Причина упрощения интерфейса - в относительной автономности знаний: мы указываем на интересующий объект информационной доски и даем источнику команду применить его правила, учитывая глобальное состояние доски. При выполнении правил каждый из источников знаний может осуществлять следующие действия:
+
+    Высказать предположение о подстановке.
+    Найти противоречие в ранее предложенных подстановках и откатить их.
+    Высказать утверждение о подстановке.
+    Сообщить контроллеру о своем желании записать на доску что-то интересное.
+
+	Конструктор класса создает экземпляр объекта и населяет его правилами. Лишь одна операция сделана в этом классе видимой для источников знании:
+
+    evaluate - Выполнить правило механизма вывода.
+
+    Теперь о том, как сотрудничают источники знаний: каждый специализированный источник определяет свои собственные правила и возлагает ответственность за их выполнение на класс InferenceEngine.
+	Точнее, операция KnowledgeSource::evaluate вызывает метод InferenceEngine::evaluate, что приводит к выполнению одной из четырех упомянутых выше операций.*/
+...
+};
+
+/*это(ниже) правило означает, что заданному шаблону *I?? (условие - antecedent) могут соответствовать суффиксы ING, IES и IED (заключение - consequent).
+ В C++ можно определить следующий класс для представления правил:*/
+class Rule {
+public:
+...
+
+    int bind(String<char>& antecedent, String<char>& consequent);
+    int remove(Strlng<char>& antecedent);
+    int remove(String<char>t antecedent, String<char>& consequent); /*было conseiruent, опечатка наверн*/
+    int hasConflict(const String<char>& antecedent) const;
+
+protected:
+
+    String<char> antecedent;
+    List<String<char>> consequents;
+
+};
+
+class KnowledgeSource : public InferenceEngine, public Dependent  {
+public:
+
+    KnowledgeSource(Blackboard*, Controller*);
+    void reset();
+    void evaluate();
+
+protected:
+
+    Blackboard* blackboard;
+    Controller* controller;
+    UnboundedOrderedCollection<Assumption*> pastAssumptions;
+
+};
+
+/*Экземпляры класса Blackboard служат для хранения объектов информационной доски. По схожим соображениям, необходим также класс KnowledgeSources,
+ охватывающий все источники знаний, относящиеся к решаемой задаче:*/
+class KnowledgeSources : public DynamicCollection<KnowledgeSource*> ...
+
+/*Одно из свойств этого класса состоит в том, что при создании его экземпляра создаются также 13 специализированных источников знаний. Для объектов этого класса определяются три операции:
+
+    restart - Перезапустить источник знаний.
+    StartKnowledgeSource - Задать начальные условия для источника знаний.
+    connect - Связать источник знаний с доской или контроллером.
+*/
+
+class Controller {
+public:
+...
+
+    void reset();
+    void connect(Knowledgesource&);
+    void addHint(KnowledgeSource&);
+    void removeHint(KnowledgeSource&);
+    void processNextHint();
+    int isSolved() const;
+    int unableToProceed() const;
+
+};
+int main(){
+	
+	return(0);
+}
