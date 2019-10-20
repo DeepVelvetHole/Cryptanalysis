@@ -52,8 +52,8 @@ protected:
     char letter;
     Affirmation affirmations;
 public:
-    char value() const;
-    int isSolved() const; 
+    char Value() const;
+    int IsSolved() const; 
 };
 
 class Word 
@@ -66,8 +66,8 @@ public:
     Word * previous() const;
     Word * next() const;
 
-    std::string value() const;
-    int isSolved() const; 
+    std::string Value() const;
+    int IsSolved() const; 
 
     ~Word();
 };
@@ -78,8 +78,8 @@ class Sentence
 protected:
     std::list<Word *> words;
 public:
-    std::string value() const;
-    int isSolved() const;
+    std::string Value() const;
+    int IsSolved() const;
 
     ~Sentence();
 };

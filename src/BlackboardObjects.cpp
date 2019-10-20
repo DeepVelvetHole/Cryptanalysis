@@ -8,33 +8,33 @@ void Blackboard::Reset()
     objects.clear(); // Does not delete objects themself
 }
 
-char CipherLetter::value() const { return letter; }
+char CipherLetter::Value() const { return letter; }
 
-int CipherLetter::isSolved() const 
+int CipherLetter::IsSolved() const 
 { return typeid(affirmations.MostRecent()) == typeid(Assertion*); }
 
-std::string Word::value() const {
+std::string Word::Value() const {
     std::string word = "";
     for (const auto &c : letters)
     {
-        word += std::string(1, c->value());
+        word += std::string(1, c->Value());
     }
     return word;
 }
 
-int Word::isSolved() const {
+int Word::IsSolved() const {
     for (const auto &c : letters)
     {
-        if (!c->isSolved()) return 0;
+        if (!c->IsSolved()) return 0;
     }
     return 1;
 }
 
-std::string Sentence::value() const {
+std::string Sentence::Value() const {
     std::string sentence = "";
     for (const auto &w : words)
     {
-        sentence += w->value() + " ";
+        sentence += w->Value() + " ";
     }
 
     /* delete last space */
@@ -43,10 +43,10 @@ std::string Sentence::value() const {
     return sentence;
 }
 
-int Sentence::isSolved() const {
+int Sentence::IsSolved() const {
     for (const auto &w : words)
     {
-        if (!w->isSolved()) return 0;
+        if (!w->IsSolved()) return 0;
     }
     return 1;
 }
