@@ -1,5 +1,5 @@
-#ifndef BLACKBOARD_OBJECTS_HPP
-#define BLACKBOARD_OBJECTS_HPP
+#ifndef BLACKBOARD_OBJECTS_H
+#define BLACKBOARD_OBJECTS_H
 
 #include <list>
 #include <string>
@@ -10,25 +10,30 @@
 class Blackboard
 {
 private:
-    std::vector<BlackboardObject*> objects;
+    std::vector<BlackboardObject *> objects;
 public:
     void Reset();
     void AssertProblem();
     void Connect();
-    int isSolved() const;
+
     std::string retrieveSolution() const;
+    int isSolved() const;
+
+    ~Blackboard();
 };
 
 class BlackboardObject
 {
 private:
-    Blackboard* blackboard;
+    Blackboard *blackboard;
 public:
-    BlackboardObject(Blackboard*);
+    BlackboardObject(Blackboard *);
 
     void Register();
     void Resign();
     void Add();
+
+    ~BlackboardObject();
 };
 
 class Alphabet 
@@ -55,18 +60,28 @@ class Word
 : public BlackboardObject, virtual public Dependent
 {
 protected:
-    std::list<CipherLetter*> letters;
+    std::list<CipherLetter *> letters;
 public:
-    Sentence& sentence() const;
-    Word* previous() const;
-    Word* next() const;
+    Sentence & sentence() const;
+    Word * previous() const;
+    Word * next() const;
+
+    std::string value() const;
+    int isSolved() const; 
+
+    ~Word();
 };
 
 class Sentence
 : public BlackboardObject, virtual public Dependent
 {
 protected:
-    std::list<Word*> words;
+    std::list<Word *> words;
+public:
+    std::string value() const;
+    int isSolved() const;
+
+    ~Sentence();
 };
 
 
@@ -74,13 +89,27 @@ class Assumption
 : public BlackboardObject, virtual public Dependent
 {
 public:
-    BlackboardObject* target;
-    KnowledgeSource* creator;
+    BlackboardObject *target;
+    KnowledgeSource *creator;
     std::string reason;
     char plainLetter;
     char cipherLetter;
+
+    ~Assumption();
 };
 
-class Affirmation {};
+class Assertion : public Assumption
+{
 
-#endif // BLACKBOARD_OBJECTS_HPP
+};
+
+class Affirmation 
+{
+public:
+    void Make();
+    void Retract();
+    char Ciphertext();
+    char Plaintext();
+};
+
+#endif // BLACKBOARD_OBJECTS_H
