@@ -103,13 +103,13 @@ class Assertion : public Assumption
 
 };
 
-class Affirmation 
+class Affirmation : std::vector<Assumption *>
 {
 public:
-    void Make();
-    void Retract();
-    char Ciphertext();
-    char Plaintext();
+    Assumption* MostRecent() const;
+    Assumption* StatementAt(size_t) const;
+
+    ~Affirmation();
 };
 
 #endif // BLACKBOARD_OBJECTS_H

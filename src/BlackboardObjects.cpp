@@ -8,11 +8,10 @@ void Blackboard::Reset()
     objects.clear(); // Does not delete objects themself
 }
 
-Blackboard::~Blackboard() { Reset(); }
-
-BlackboardObject::~BlackboardObject() { delete blackboard; }
-
 char CipherLetter::value() const { return letter; }
+
+int CipherLetter::isSolved() const 
+{ return typeid(affirmations.MostRecent()) == typeid(Assertion*); }
 
 std::string Word::value() const {
     std::string word = "";
@@ -30,8 +29,6 @@ int Word::isSolved() const {
     }
     return 1;
 }
-
-Word::~Word() { for (auto &c : letters) { delete c; } }
 
 std::string Sentence::value() const {
     std::string sentence = "";
@@ -54,10 +51,20 @@ int Sentence::isSolved() const {
     return 1;
 }
 
-Sentence::~Sentence() { for (auto &w : words) { delete w; } }
+Assumption* Affirmation::MostRecent() const { return back(); }
 
-Assumption::~Assumption() 
-{ 
-    delete target; 
-    delete creator;
-}
+Assumption* Affirmation::StatementAt(size_t i) const { return at(i); }
+
+
+
+Blackboard::~Blackboard() { Reset(); }
+
+BlackboardObject::~BlackboardObject() { delete blackboard; }
+
+Word::~Word() { for (auto &c : letters) { delete c; } }
+
+Sentence::~Sentence() { for (auto &w : words) delete w; }
+
+Assumption::~Assumption() { delete target; delete creator; }
+
+Affirmation::~Affirmation() { for (size_t i = 0; i < size(); ++i) delete (*this)[i]; }
