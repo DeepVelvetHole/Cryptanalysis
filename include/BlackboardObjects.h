@@ -7,17 +7,23 @@
 
 #include "KnowledgeSources.h"
 
-class Blackboard
+class Blackboard : std::vector<BlackboardObject *>
 {
-private:
-    std::vector<BlackboardObject *> objects;
+protected:
+    Sentence *sentence;
 public:
+    void Add(BlackboardObject *);
+    void Remove(size_t);
+
     void Reset();
-    void AssertProblem();
+    void AssertProblem(
+        Sentence *, 
+        std::vector<Assertion *> = {}
+    );
     void Connect();
 
-    std::string retrieveSolution() const;
-    int isSolved() const;
+    std::string RetrieveSolution() const;
+    int IsSolved() const;
 
     ~Blackboard();
 };
@@ -39,10 +45,12 @@ public:
 class Alphabet 
 : public BlackboardObject, virtual public Dependent
 {
+protected:
+    Affirmation affirmations;
 public:
-    char plaintext(char) const;
-    char ciphertext(char) const;
-    int isBound(char) const;
+    char Plaintext(char) const;
+    char Ciphertext(char) const;
+    int IsBound(char) const;
 };
 
 class CipherLetter 
@@ -62,9 +70,9 @@ class Word
 protected:
     std::list<CipherLetter *> letters;
 public:
-    Sentence & sentence() const;
-    Word * previous() const;
-    Word * next() const;
+    Sentence & Sentence() const;
+    Word * Previous() const;
+    Word * Next() const;
 
     std::string Value() const;
     int IsSolved() const; 

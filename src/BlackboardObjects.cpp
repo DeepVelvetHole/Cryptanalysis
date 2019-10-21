@@ -1,17 +1,39 @@
 #include "BlackboardObjects.h"
 
+void Blackboard::Add(BlackboardObject * object) 
+{ push_back(object); }
+
+void Blackboard::Remove(size_t pos) { delete at(pos); }
+
 void Blackboard::Reset()
 {
     /* Avoiding memory leaks with next line */
-    for (auto& p : objects) { delete p; }
+    for (size_t i = 0; i < size(); ++i) Remove(i);
 
-    objects.clear(); // Does not delete objects themself
+    clear(); // Does not delete objects themself
 }
+
+void Blackboard::AssertProblem(
+    Sentence *sentence, 
+    std::vector<Assertion *> assertions
+)
+{
+    this->sentence = sentence;
+    for (auto &i : assertions) Add(i);
+}
+
+std::string Blackboard::RetrieveSolution() const 
+{ return sentence->Value(); }
+
+int Blackboard::IsSolved() const { return sentence->IsSolved(); }
 
 char CipherLetter::Value() const { return letter; }
 
 int CipherLetter::IsSolved() const 
-{ return typeid(affirmations.MostRecent()) == typeid(Assertion*); }
+{ 
+    return 
+    typeid(affirmations.MostRecent()) == typeid(Assertion*); 
+}
 
 std::string Word::Value() const {
     std::string word = "";
